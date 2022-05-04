@@ -27,25 +27,34 @@ function copyRes() {
     .pipe(gulp.dest('./build'));
 };
 
-exports.watchFiles = function () {
+function buildFiles() {
   mkdirSync('build', {recursive: true});
-  buildStyles();
-  buildHaml();
-  //copyHtml();
-  copyRes();
+  let task = gulp.series('buildStyles', 'buildHaml', 'copyRes');
+  task();
+};
+
+exports.buildFiles = function(cb:any) {
+  buildFiles();
+  cb();
+};
+
+exports.watchFiles = function (cb:any) {
+  // let buildTask = gulp.series('buildFiles');
+  // buildTask();
+  buildFiles();
   gulp.watch(['./src/**/*.scss', './src/**/*.sass'], gulp.series('buildStyles'));
   //gulp.watch(['./src/**/*.html'], gulp.series('copyHtml'));
   gulp.watch(['./src/**/*.haml'], gulp.series('buildHaml'));
+  cb();
 };
 
-function defaultTask(cb:any) {
-  console.log('aabb');
-  // place code for your default task here
-  cb();
-}
+// function defaultTask(cb:any) {
+//   // place code for your default task here
+//   cb();
+// }
 
 exports.buildStyles = buildStyles;
 exports.buildHaml = buildHaml;
 exports.copyHtml = copyHtml;
 exports.copyRes = copyRes;
-exports.default = defaultTask;
+exports.default = exports.buildFiles;
